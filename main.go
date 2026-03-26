@@ -130,9 +130,18 @@ func withRecovery(next http.HandlerFunc) http.HandlerFunc {
 // ==============================================================================
 
 func main() {
-	// Cloud Logging 向けに JSON 形式で出力
+	// Cloud Logging 向けに JSON 形式で出力 (level→severity, msg→message にリネーム)
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.LevelKey {
+				a.Key = "severity"
+			}
+			if a.Key == slog.MessageKey {
+				a.Key = "message"
+			}
+			return a
+		},
 	})))
 
 	port := os.Getenv("PORT")
